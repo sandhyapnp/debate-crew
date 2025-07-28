@@ -1,0 +1,15 @@
+# Ignore Python virtual environments
+venv*/
+.venv/
+
+# Ignore environment variables
+.env
+
+# Ignore Python build artifacts
+__pycache__/
+*.py[cod]
+
+# Ignore logs and other temporary files
+*.log
+*.sqlite3
+.DS_Store
