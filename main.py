@@ -4,6 +4,8 @@ Debate Crew - Main Application
 An agentic debate system using CrewAI framework
 """
 
+# TODO: The entire system has many static topics. We want to make it interactive. Frequently use agents to generate topics. 
+
 import os
 import sys
 from typing import Dict, Any, List
@@ -56,67 +58,70 @@ class DebateCrew:
         return True
     
     def topic_discovery_phase(self) -> bool:
-        """Interactive topic discovery phase."""
+        """Interactive topic discovery phase using agent-driven approach."""
         self.console.print("\n[bold yellow]Phase 1: Topic Discovery[/bold yellow]")
         self.console.print("Let's find the perfect debate topic for you!\n")
         
-        # Get initial user input
-        initial_input = Prompt.ask(
+        # Get user input
+        user_input = Prompt.ask(
             "What topic would you like to debate, or what are your interests?",
             default="I'm not sure, help me discover a topic"
         )
         
-        # Interactive topic discovery
-        self.console.print("\n[cyan]Topic Selector Agent is analyzing your interests...[/cyan]")
+        # Use the Topic Selector agent to generate topics
+        self.console.print("\n[cyan]Topic Selector Agent is researching and generating topics...[/cyan]")
         
-        # Simulate topic discovery process
-        topic_info = self.topic_selector.discover_topic(initial_input)
-        
-        # For demo purposes, let's use a sample topic
-        sample_topics = [
-            "Should social media platforms be regulated more strictly?",
-            "Is remote work better than office work?",
-            "Should college education be free?",
-            "Are electric vehicles the future of transportation?",
-            "Should artificial intelligence be regulated?"
-        ]
-        
-        self.console.print("\n[green]Here are some suggested debate topics based on your interests:[/green]")
-        for i, topic in enumerate(sample_topics, 1):
-            self.console.print(f"{i}. {topic}")
-        
-        # Let user select or suggest their own topic
-        choice = Prompt.ask(
-            "\nSelect a topic number, or type your own topic",
-            choices=[str(i) for i in range(1, len(sample_topics) + 1)] + ["custom"],
-            default="1"
-        )
-        
-        if choice == "custom":
-            self.current_topic = Prompt.ask("Enter your debate topic")
-        else:
-            self.current_topic = sample_topics[int(choice) - 1]
-        
-        self.console.print(f"\n[green]Selected topic: {self.current_topic}[/green]")
-        
-        # Determine stance
-        self.console.print("\n[bold]Now let's determine your stance:[/bold]")
-        stance_choice = Prompt.ask(
-            f"Do you want to debate FOR or AGAINST: '{self.current_topic}'?",
-            choices=["for", "against"],
-            default="for"
-        )
-        
-        self.current_stance = stance_choice
-        self.console.print(f"[green]You will be debating {stance_choice.upper()} the topic![/green]")
-        
-        # Confirm start
-        start_debate = Confirm.ask("\nReady to start the debate?", default=True)
-        if not start_debate:
-            self.console.print("[yellow]Debate cancelled. Goodbye![/yellow]")
+        try:
+            # Get topics from the agent
+            suggested_topics = self.topic_selector.generate_topics(user_input)
+            
+            if not suggested_topics:
+                self.console.print("[red]Error: Could not generate topics. Please try again.[/red]")
+                return False
+            
+            # Display agent-generated topics
+            self.console.print("\n[green]Here are some suggested debate topics:[/green]")
+            for i, topic in enumerate(suggested_topics, 1):
+                self.console.print(f"{i}. {topic}")
+            
+            # Let user select or suggest their own topic
+            choice = Prompt.ask(
+                "\nSelect a topic number, or type 'custom' for your own topic",
+                choices=[str(i) for i in range(1, len(suggested_topics) + 1)] + ["custom"],
+                default="1"
+            )
+            
+            if choice == "custom":
+                self.current_topic = Prompt.ask("Enter your debate topic")
+            else:
+                self.current_topic = suggested_topics[int(choice) - 1]
+            
+            self.console.print(f"\n[green]Selected topic: {self.current_topic}[/green]")
+            
+            # Determine stance
+            self.console.print("\n[bold]Now let's determine your stance:[/bold]")
+            stance_choice = Prompt.ask(
+                f"Do you want to debate FOR or AGAINST: '{self.current_topic}'?",
+                choices=["for", "against"],
+                default="for"
+            )
+            
+            self.current_stance = stance_choice
+            self.console.print(f"[green]You will be debating {stance_choice.upper()} the topic![/green]")
+            
+            # Confirm start
+            start_debate = Confirm.ask("\nReady to start the debate?", default=True)
+            if not start_debate:
+                self.console.print("[yellow]Debate cancelled. Goodbye![/yellow]")
+                return False
+            
+            return True
+            
+        except Exception as e:
+            self.console.print(f"[red]Error during topic discovery: {e}[/red]")
             return False
-        
-        return True
+    
+
     
     def debate_phase(self):
         """Main debate phase with all three agents working together."""

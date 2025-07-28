@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from typing import Dict, Any, Optional
 import os
 from dotenv import load_dotenv
+from typing import List
 
 load_dotenv()
 
@@ -23,6 +24,71 @@ class TopicSelectorAgent:
             allow_delegation=False,
             llm=self.llm
         )
+    
+    def generate_topics(self, user_input: str) -> List[str]:
+        """
+        Generate debate topics based on user input using the agent.
+        
+        Args:
+            user_input: User's interests or topic preferences
+            
+        Returns:
+            List of suggested debate topics
+        """
+        try:
+            # Create a task for the agent to generate topics
+            task_description = f"""
+            Based on the user's input: "{user_input}"
+            
+            Generate 5 engaging debate topics that would be suitable for educational debate.
+            
+            Consider:
+            1. Current events and trending issues
+            2. Controversial topics that have clear arguments on both sides
+            3. Topics relevant to the user's interests
+            4. Educational value and learning potential
+            5. Age-appropriate and accessible topics
+            
+            If the user is unsure or asks for help, suggest topics from current events, 
+            technology trends, social issues, education, environment, or health.
+            
+            Return exactly 5 topics as a list of strings, each starting with "Should" or "Is" or "Are".
+            Make sure topics are current, relevant, and debatable.
+            """
+            
+            # Use the agent to generate topics
+            response = self.agent.execute_task(task_description)
+            
+            # Parse the response to extract topics
+            # The agent should return a list of topics
+            if isinstance(response, list):
+                return response[:5]  # Ensure we get exactly 5 topics
+            elif isinstance(response, str):
+                # If response is a string, try to parse it
+                lines = response.strip().split('\n')
+                topics = []
+                for line in lines:
+                    line = line.strip()
+                    if line and (line.startswith('Should') or line.startswith('Is') or line.startswith('Are')):
+                        topics.append(line)
+                return topics[:5]
+            else:
+                # Fallback to default topics if parsing fails
+                return self._get_default_topics()
+                
+        except Exception as e:
+            print(f"Error generating topics: {e}")
+            return self._get_default_topics()
+    
+    def _get_default_topics(self) -> List[str]:
+        """Fallback default topics if agent fails."""
+        return [
+            "Should social media platforms be regulated more strictly?",
+            "Is remote work better than office work?",
+            "Should college education be free?",
+            "Are electric vehicles the future of transportation?",
+            "Should artificial intelligence be regulated?"
+        ]
     
     def discover_topic(self, user_input: str = "") -> Dict[str, Any]:
         """

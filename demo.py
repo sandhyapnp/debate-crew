@@ -24,29 +24,31 @@ def demo_topic_selection():
     topic_selector = TopicSelectorAgent()
     
     # Simulate topic discovery
-    console.print("User input: 'I'm interested in technology and education'")
+    user_input = "I'm interested in technology and education"
+    console.print(f"User input: '{user_input}'")
     
-    # Simulate topic suggestions
-    suggested_topics = [
-        "Should coding be mandatory in schools?",
-        "Is online learning as effective as traditional education?",
-        "Should social media be banned in schools?",
-        "Are video games beneficial for learning?",
-        "Should AI tools be allowed in academic work?"
-    ]
+    # Use the agent to generate topics
+    console.print("\n[cyan]Topic Selector Agent is generating topics...[/cyan]")
     
-    console.print("\n[green]Topic Selector Agent suggests:[/green]")
-    for i, topic in enumerate(suggested_topics, 1):
-        console.print(f"{i}. {topic}")
-    
-    # Simulate user selection
-    selected_topic = suggested_topics[0]
-    stance = "for"
-    
-    console.print(f"\n[blue]Selected: {selected_topic}[/blue]")
-    console.print(f"[blue]Stance: {stance.upper()}[/blue]")
-    
-    return selected_topic, stance
+    try:
+        suggested_topics = topic_selector.generate_topics(user_input)
+        
+        console.print("\n[green]Topic Selector Agent suggests:[/green]")
+        for i, topic in enumerate(suggested_topics, 1):
+            console.print(f"{i}. {topic}")
+        
+        # Simulate user selection
+        selected_topic = suggested_topics[0] if suggested_topics else "Should coding be mandatory in schools?"
+        stance = "for"
+        
+        console.print(f"\n[blue]Selected: {selected_topic}[/blue]")
+        console.print(f"[blue]Stance: {stance.upper()}[/blue]")
+        
+        return selected_topic, stance
+        
+    except Exception as e:
+        console.print(f"[red]Error in demo: {e}[/red]")
+        return "Should coding be mandatory in schools?", "for"
 
 def demo_debate_round(topic, stance, user_argument):
     """Demo a single debate round."""
@@ -88,26 +90,32 @@ def demo_final_evaluation():
     
     critique = CritiqueAgent()
     
-    # Simulate final evaluation
-    final_eval = {
-        "overall_quality": "Good",
-        "user_strengths": ["Clear communication", "Good engagement", "Logical thinking"],
-        "debator_strengths": ["Strong argument structure", "Good evidence use", "Educational approach"],
-        "improvement_areas": ["More specific examples", "Better counter-arguments", "Stronger evidence"],
-        "educational_value": "High - excellent critical thinking development",
-        "final_scores": {
-            "user": {"argument_quality": 7, "evidence_use": 6, "logical_structure": 8, "total": 7},
-            "debator": {"argument_quality": 8, "evidence_use": 8, "logical_structure": 9, "total": 8}
+    # Simulate final evaluation using the agent
+    try:
+        # This would use the critique agent to generate evaluation
+        # For demo purposes, we'll simulate the agent's response
+        final_eval = {
+            "overall_quality": "Good",
+            "user_strengths": ["Clear communication", "Good engagement", "Logical thinking"],
+            "debator_strengths": ["Strong argument structure", "Good evidence use", "Educational approach"],
+            "improvement_areas": ["More specific examples", "Better counter-arguments", "Stronger evidence"],
+            "educational_value": "High - excellent critical thinking development",
+            "final_scores": {
+                "user": {"argument_quality": 7, "evidence_use": 6, "logical_structure": 8, "total": 7},
+                "debator": {"argument_quality": 8, "evidence_use": 8, "logical_structure": 9, "total": 8}
+            }
         }
-    }
-    
-    console.print(Panel(
-        f"[bold]Overall Quality:[/bold] {final_eval['overall_quality']}\n"
-        f"[bold]Educational Value:[/bold] {final_eval['educational_value']}\n\n"
-        f"[bold]User Strengths:[/bold]\n" + "\n".join(f"• {s}" for s in final_eval['user_strengths']) + "\n\n"
-        f"[bold]Areas for Improvement:[/bold]\n" + "\n".join(f"• {a}" for a in final_eval['improvement_areas']),
-        title="Final Evaluation", border_style="green"
-    ))
+        
+        console.print(Panel(
+            f"[bold]Overall Quality:[/bold] {final_eval['overall_quality']}\n"
+            f"[bold]Educational Value:[/bold] {final_eval['educational_value']}\n\n"
+            f"[bold]User Strengths:[/bold]\n" + "\n".join(f"• {s}" for s in final_eval['user_strengths']) + "\n\n"
+            f"[bold]Areas for Improvement:[/bold]\n" + "\n".join(f"• {a}" for a in final_eval['improvement_areas']),
+            title="Final Evaluation", border_style="green"
+        ))
+        
+    except Exception as e:
+        console.print(f"[red]Error in final evaluation demo: {e}[/red]")
 
 def main():
     """Run the demo."""
